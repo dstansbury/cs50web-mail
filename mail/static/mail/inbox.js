@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose').addEventListener('click', compose_email);
 
   document.querySelector("#compose-form").addEventListener("submit", function(event) {
-    event.preventDefault();  // Prevent form submission
+    // prevents the default behavior of the form, which is to use a get request
+    event.preventDefault();
     // call the send email function
     send_email();
   });
@@ -55,4 +56,38 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // get the relevant emails from the DB for that mailbox
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    // Print the emails to the console for debugging
+    console.log(emails);
+
+    // loop through the emails and create a new div element for each email
+    emails.forEach(email => {
+      // set up a new div for each new element
+      const emailDiv = document.createElement('div');
+      
+
+      // give the new div a class name so we can style it
+      emailDiv.className = 'email-box';
+
+      if (email.read) {
+        emailDiv.style.backgroundColor = '#f0f0f0';
+      }
+      else
+      {
+        emailDiv.style.backgroundColor = '#ffffff';
+      }
+      
+
+      emailDiv.innerHTML = `<div class="sender"><strong>From:</strong> ${email.sender}</div>
+        <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
+        <div class="timestamp">${email.timestamp}</div>`;
+      
+      document.querySelector('#emails-view').append(emailDiv);
+    });
+  });
 }
+
