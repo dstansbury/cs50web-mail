@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
-
+  // logic for the compose form submission
   document.querySelector("#compose-form").addEventListener("submit", function(event) {
     // prevents the default behavior of the form, which is to use a get request
     event.preventDefault();
@@ -63,11 +63,13 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
+    
     // Print the emails to the console for debugging
     console.log(emails);
 
     // loop through the emails and create a new div element for each email
     emails.forEach(email => {
+      
       // set up a new div for each new element
       const emailDiv = document.createElement('div');
 
@@ -76,8 +78,11 @@ function load_mailbox(mailbox) {
 
       // add an event listener to the div so that when it is clicked, the email is opened
       emailDiv.addEventListener('click', () => {
+        
         // call the function to show the email
         show_email(email.id);
+        
+        // call the function to mark the email as read
         mark_as_read(email.id);        
         });
 
@@ -100,11 +105,19 @@ function load_mailbox(mailbox) {
         emailDiv.style.border= '1px solid #ddd';
       });   
 
-      // set the inner HTML of the new div
+      // if the mailbox is sent, show the recipients instead of the sender
+      if (mailbox === 'sent') {
+        // adds a comma between each recipient
+        emailDiv.innerHTML = `<div class="sender"><strong>To:</strong> ${email.recipients.join(', ')}</div>
+        <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
+        <div class="timestamp">${email.timestamp}</div>`;
+      }
+      // otherwise show the sender
+      else {
       emailDiv.innerHTML = `<div class="sender"><strong>From:</strong> ${email.sender}</div>
         <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
         <div class="timestamp">${email.timestamp}</div>`;
-      
+      };
       // add each emails div to the DOM within the emails-view div
       document.querySelector('#emails-view').append(emailDiv);
     });
@@ -130,6 +143,30 @@ function show_email(email_id) {
     document.querySelector('#email-recipients').innerHTML = `<strong>To:</strong> ${email.recipients}`;
     document.querySelector('#email-timestamp').innerHTML = `<strong>Time:</strong> ${email.timestamp}`;
     document.querySelector('#email-body').innerHTML = `${email.body}`;
+
+    // inbox mailbox button logic
+    // if the sender is not the current user and the email is unarchived
+    // the email is in the inbox: show reply and archive buttons
+    if (!email.archived && (email.sender !== document.querySelector('#user-email').innerHTML)) {
+      document.querySelector('#unarchive-button').style.display = 'none';
+      document.querySelector('#archive-button').style.display = 'inline';
+    }
+
+    // archive mailbox button logic
+    // if the sender is not the current user and the email is archived
+    // the email is in the archive: show reply and unarchive buttons
+    else if (email.archived && (email.sender !== document.querySelector('#user-email').innerHTML)) {
+      document.querySelector('#unarchive-button').style.display = 'inline';
+      document.querySelector('#archive-button').style.display = 'none';
+    }
+
+    // sent mailbox button logic
+    // if the email is sent by the user, hide the archive and unarchive buttons
+    else if (email.sender === document.querySelector('#user-email').innerHTML) {
+      document.querySelector('#archive-button').style.display = 'none';
+      document.querySelector('#unarchive-button').style.display = 'none';
+    };
+    
 });
 }
 
