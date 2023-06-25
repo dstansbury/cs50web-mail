@@ -34,3 +34,18 @@ textarea {
 .email-box .timestamp {
     text-align: right; /* position the timestamp on the right */
   }
+
+/* ---- Show individual email styles ---- */
+.email-header-block {
+    border: 1px solid #ddd; /* Border style */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px; /* Add padding for spacing */
+    margin-bottom: 10px; /* Add margin between email boxes */
+}
+
+.email-body-block {
+    border: 1px solid #ddd; /* Border style */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px; /* Add padding for spacing */
+    margin-bottom: 10px; /* Add margin between email boxes */
+}
