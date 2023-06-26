@@ -12,10 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // call the send email function
     send_email();
   });
-
+  
   // By default, load the inbox
-  load_mailbox('inbox');
-});
+ load_mailbox('inbox');
+
 
 function compose_email() {
 
@@ -69,62 +69,66 @@ function load_mailbox(mailbox) {
 
     // loop through the emails and create a new div element for each email
     emails.forEach(email => {
-      
-      // set up a new div for each new element
-      const emailDiv = document.createElement('div');
-
-      // give the new div a class name so we can style it in the CSS file
-      emailDiv.className = 'email-box';
-
-      // add an event listener to the div so that when it is clicked, the email is opened
-      emailDiv.addEventListener('click', () => {
-        
-        // call the function to show the email
-        show_email(email.id);
-        
-        // call the function to mark the email as read
-        mark_as_read(email.id);        
-        });
-
-      // change the background color of the div if the email has been read
-      if (email.read) {
-        emailDiv.style.backgroundColor = '#f0f0f0';
-      }
-      else
-      {
-        emailDiv.style.backgroundColor = '#ffffff';
-      };
-      
-      // add an event listener to the div so that when it is hovered over, the border color changes
-      emailDiv.addEventListener('mouseover', () => {
-        emailDiv.style.border = '1px solid #24a0ed';
-      });
-
-      // event listener so the border color changes back when the mouse leaves the div
-      emailDiv.addEventListener('mouseout', () => {
-        emailDiv.style.border= '1px solid #ddd';
-      });   
-
-      // if the mailbox is sent, show the recipients instead of the sender
-      if (mailbox === 'sent') {
-        // adds a comma between each recipient
-        emailDiv.innerHTML = `<div class="sender"><strong>To:</strong> ${email.recipients.join(', ')}</div>
-        <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
-        <div class="timestamp">${email.timestamp}</div>`;
-      }
-      // otherwise show the sender
-      else {
-      emailDiv.innerHTML = `<div class="sender"><strong>From:</strong> ${email.sender}</div>
-        <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
-        <div class="timestamp">${email.timestamp}</div>`;
-      };
-      // add each emails div to the DOM within the emails-view div
-      document.querySelector('#emails-view').append(emailDiv);
-    });
+      add_email(email, mailbox);
+  });
   });
 }
 
-// show a given email
+function add_email(email, mailbox) {
+  // set up a new div for each new element
+  const emailDiv = document.createElement('div');
+
+  // give the new div a class name so we can style it in the CSS file
+  emailDiv.className = 'email-box';
+
+  // add an event listener to the div so that when it is clicked, the email is opened
+  emailDiv.addEventListener('click', () => {
+    
+    // call the function to show the email
+    show_email(email.id);
+    
+    // call the function to mark the email as read
+    mark_as_read(email.id);        
+    });
+
+  // change the background color of the div if the email has been read
+  if (email.read) {
+    emailDiv.style.backgroundColor = '#f0f0f0';
+  }
+  else
+  {
+    emailDiv.style.backgroundColor = '#ffffff';
+  };
+  
+  // add an event listener to the div so that when it is hovered over, the border color changes
+  emailDiv.addEventListener('mouseover', () => {
+    emailDiv.style.border = '1px solid #24a0ed';
+  });
+
+  // event listener so the border color changes back when the mouse leaves the div
+  emailDiv.addEventListener('mouseout', () => {
+    emailDiv.style.border= '1px solid #ddd';
+  });   
+
+  // if the mailbox is sent, show the recipients instead of the sender
+  if (mailbox === 'sent') {
+    // adds a comma between each recipient
+    emailDiv.innerHTML = `<div class="sender"><strong>To:</strong> ${email.recipients.join(', ')}</div>
+    <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
+    <div class="timestamp">${email.timestamp}</div>`;
+  }
+  // otherwise show the sender
+  else {
+  emailDiv.innerHTML = `<div class="sender"><strong>From:</strong> ${email.sender}</div>
+    <div class="subject"><strong>Subject:</strong> ${email.subject}</div>
+    <div class="timestamp">${email.timestamp}</div>`;
+  };
+  
+  // add each emails div to the DOM within the emails-view div
+  document.querySelector('#emails-view').append(emailDiv);
+};
+
+// show an individual given email
 function show_email(email_id) {
   fetch(`/emails/${email_id}`)
   .then(response => response.json())
@@ -136,6 +140,26 @@ function show_email(email_id) {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'none';
     document.querySelector('#show-email-view').style.display = 'block';
+
+    // Generate the HTML for the show-email-view div dynamically
+    const showEmailDiv = document.querySelector('#show-email-view');
+
+    showEmailDiv.innerHTML = `
+      <div id="email-subject"><h3>${email.subject}</h3></div>
+      <div class="email-header-block">
+        <div id="email-sender"><strong>From:</strong> ${email.sender}</div>
+        <div id="email-recipients"><strong>To:</strong> ${email.recipients}</div>
+        <div id="email-timestamp"><strong>Time:</strong> ${email.timestamp}</div>
+      </div>
+      <div class ="email-body-block">
+        <div id="email-body">${email.body}</div>
+      </div>
+      <div class ="email-action-block">
+        <button class="btn btn-sm btn-outline-primary" id="reply-button">Reply</button>
+        <button class="btn btn-sm btn-outline-primary" id="archive-button">Archive</button>
+        <button class="btn btn-sm btn-outline-primary" id="unarchive-button">Unarchive</button>
+      </div>
+      `;
 
     // display the email in the relevant divs
     document.querySelector('#email-subject').innerHTML = `<h3>${email.subject}</h3>`;
@@ -166,6 +190,24 @@ function show_email(email_id) {
       document.querySelector('#archive-button').style.display = 'none';
       document.querySelector('#unarchive-button').style.display = 'none';
     };
+
+     // logic for archive button
+      document.querySelector("#archive-button").addEventListener("click", function() {
+      // call the archive function
+      archive_email(email.id);
+    });
+
+    // logic for unarchive button
+      document.querySelector("#unarchive-button").addEventListener("click", function() {
+      // call the unarchive function
+      unarchive_email(email.id);
+    });
+
+    // logic for reply button
+    document.querySelector("#reply-button").addEventListener("click", function() {
+      // call the reply function
+      reply_email(email.id);
+    });
     
 });
 }
@@ -179,3 +221,44 @@ function mark_as_read(email_id) {
     })
   });
 }
+
+// mark an email as archived
+function archive_email(email_id) {
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: true
+    })
+  })
+  // clean up the view so we don't get duplicates
+  .then (() => cleanup())
+  // reload the inbox
+  .then (() => load_mailbox('inbox'));
+ 
+}
+
+// mark an email as unarchived
+function unarchive_email(email_id) {
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: false
+    })
+  })
+
+  // clean up the view so we don't get duplicates
+  .then (() => cleanup())
+
+  // reload the inbox
+  .then (() => load_mailbox('inbox'));
+} 
+
+function cleanup() {
+  // clean out the emails-view div
+  document.querySelector('#emails-view').innerHTML = 'blank';
+  // clean out the show-email-view div
+  document.querySelector('#show-email-view').innerHTML = 'blank';
+}
+
+});
+ 
