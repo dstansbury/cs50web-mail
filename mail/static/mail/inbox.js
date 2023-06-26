@@ -206,7 +206,7 @@ function show_email(email_id) {
     // logic for reply button
     document.querySelector("#reply-button").addEventListener("click", function() {
       // call the reply function
-      reply_email(email.id);
+      reply_email(email);
     });
     
 });
@@ -230,6 +230,7 @@ function archive_email(email_id) {
         archived: true
     })
   })
+
   // clean up the view so we don't get duplicates
   .then (() => cleanup())
   // reload the inbox
@@ -252,6 +253,25 @@ function unarchive_email(email_id) {
   // reload the inbox
   .then (() => load_mailbox('inbox'));
 } 
+
+function reply_email(email) {
+  // hide other views and show the compose view
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#show-email-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+
+  // add the person to be replied to to the recipients field
+  document.querySelector('#compose-recipients').value = email.sender;
+  // check if the reply subject already starts with Re: and if not, add it then plug it into the subject field
+  if (email.subject.startsWith('Re:')) {
+    document.querySelector('#compose-subject').value = email.subject;
+  }
+  else {
+    document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
+  }
+  // add the original email body under the intro text specified in the spec
+  document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote:\n\n${email.body}`;
+}
 
 function cleanup() {
   // clean out the emails-view div
