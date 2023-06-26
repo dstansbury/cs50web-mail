@@ -93,21 +93,21 @@ function add_email(email, mailbox) {
 
   // change the background color of the div if the email has been read
   if (email.read) {
-    emailDiv.style.backgroundColor = '#f0f0f0';
+    emailDiv.classList.add('read');
   }
   else
   {
-    emailDiv.style.backgroundColor = '#ffffff';
-  };
+    emailDiv.classList.add('unread');
+  }
   
   // add an event listener to the div so that when it is hovered over, the border color changes
   emailDiv.addEventListener('mouseover', () => {
-    emailDiv.style.border = '1px solid #24a0ed';
+    emailDiv.classList.add('hover');
   });
 
   // event listener so the border color changes back when the mouse leaves the div
   emailDiv.addEventListener('mouseout', () => {
-    emailDiv.style.border= '1px solid #ddd';
+    emailDiv.classList.remove('hover');
   });   
 
   // if the mailbox is sent, show the recipients instead of the sender
@@ -255,9 +255,9 @@ function unarchive_email(email_id) {
 
 function cleanup() {
   // clean out the emails-view div
-  document.querySelector('#emails-view').innerHTML = 'blank';
+  document.querySelector('#emails-view').innerHTML = '';
   // clean out the show-email-view div
-  document.querySelector('#show-email-view').innerHTML = 'blank';
+  document.querySelector('#show-email-view').innerHTML = '';
 }
 
 });

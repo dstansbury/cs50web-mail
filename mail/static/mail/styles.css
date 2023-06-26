@@ -34,7 +34,20 @@ textarea {
 .email-box .timestamp {
     text-align: right; /* position the timestamp on the right */
   }
-  
+
+.email-box.unread {
+    background-color: white; /* white background if unread*/
+}
+
+.email-box.read {
+    background-color: #f0f0f0; /* light gray background if read */
+}
+
+.email-box.hover {
+    border: 1px solid #24a0ed; /* light gray background if read */
+}
+
+
 
 /* ---- Show individual email styles ---- */
 .email-header-block {
